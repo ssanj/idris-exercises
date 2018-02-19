@@ -22,6 +22,8 @@ addToStore (MkData size' items') newItem = MkData _ (addToData items')
 
 data Command = Add String
              | Get Integer
+             | Size
+             | Search String
              | Quit
 
 parseCommand : (cmd : String) -> (args : String) -> Maybe Command
@@ -29,6 +31,8 @@ parseCommand "add" str = Just (Add str)
 parseCommand "get" val = case all isDigit (unpack val) of
                             True => Just (Get (cast val ))
                             False => Nothing
+parseCommand "size" "" = Just Size
+parseCommand "search" str = Just (Search str)
 parseCommand "quit" "" = Just Quit
 parseCommand _ _       = Nothing
 
@@ -47,6 +51,13 @@ getEntry pos store@(MkData size' items') = case integerToFin pos size' of
 processCommand : (command : Command) -> (store : DataStore) ->  Maybe (String, DataStore)
 processCommand (Add item) store = Just ("ID " ++ show (size store) ++ "\n", addToStore store item)
 processCommand (Get idx) store = getEntry idx store
+processCommand Size store = Just("# Entries " ++ show (size store) ++ "\n", store)
+processCommand (Search query) store@(MkData size' items') =
+  let filteredItems = Data.Vect.filter (Strings.isInfixOf query) items'
+      displayItems  = "matching items: " Data.Vect.++ (filteredItems)
+  in
+  Just (displayItems, store)
+
 processCommand Quit _ = Nothing
 
 processInput : DataStore -> String -> Maybe (String, DataStore)
