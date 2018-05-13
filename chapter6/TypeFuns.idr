@@ -17,3 +17,8 @@ valToString2 : (isInt: Bool) -> (case isInt of
                                       True => Int) -> String
 valToString2 False = trim
 valToString2 True = cast
+
+
+valToString3 : (isInt: Bool) -> StringOrInt isInt -> String
+valToString3 False = trim
+valToString3 True  = cast
